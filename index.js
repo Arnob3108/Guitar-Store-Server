@@ -22,11 +22,20 @@ async function run() {
     const categoryCollection = client
       .db("guitarStore")
       .collection("Categories");
+    const categoryProductCollection = client
+      .db("guitarStore")
+      .collection("categoryProduct");
 
-    app.get("/guitarCategorys", async (req, res) => {
+    app.get("/category", async (req, res) => {
       const query = {};
       const categorys = await categoryCollection.find(query).toArray();
       res.send(categorys);
+    });
+    app.get("/category/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { categori_id: id };
+      const products = await categoryProductCollection.find(query).toArray();
+      res.send(products);
     });
   } finally {
   }
