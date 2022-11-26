@@ -25,6 +25,9 @@ async function run() {
     const categoryProductCollection = client
       .db("guitarStore")
       .collection("categoryProduct");
+    const productBookedCollection = client
+      .db("guitarStore")
+      .collection("productBooked");
 
     app.get("/category", async (req, res) => {
       const query = {};
@@ -36,6 +39,18 @@ async function run() {
       const query = { categori_id: id };
       const products = await categoryProductCollection.find(query).toArray();
       res.send(products);
+    });
+
+    app.post("/category/product", async (req, res) => {
+      const categoryProduct = req.body;
+      const result = await categoryProductCollection.insertOne(categoryProduct);
+      res.send(result);
+    });
+
+    app.post("/category/product/booked", async (req, res) => {
+      const productBooked = req.body;
+      const result = await productBookedCollection.insertOne(productBooked);
+      res.send(result);
     });
   } finally {
   }
