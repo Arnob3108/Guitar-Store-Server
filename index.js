@@ -28,6 +28,7 @@ async function run() {
     const productBookedCollection = client
       .db("guitarStore")
       .collection("productBooked");
+    const usersCollection = client.db("guitarStore").collection("users");
 
     // category api
     app.get("/category", async (req, res) => {
@@ -72,6 +73,13 @@ async function run() {
       const query = { email: email };
       const bookings = await productBookedCollection.find(query).toArray();
       res.send(bookings);
+    });
+
+    // user post api
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
     });
   } finally {
   }
