@@ -29,11 +29,21 @@ async function run() {
       .db("guitarStore")
       .collection("productBooked");
 
+    // category api
     app.get("/category", async (req, res) => {
       const query = {};
       const categorys = await categoryCollection.find(query).toArray();
       res.send(categorys);
     });
+
+    // all product api
+    app.get("/category/product", async (req, res) => {
+      const query = {};
+      const procucts = await categoryProductCollection.find(query).toArray();
+      res.send(procucts);
+    });
+
+    // category wise api
     app.get("/category/:id", async (req, res) => {
       const id = req.params.id;
       const query = { categori_id: id };
@@ -41,16 +51,27 @@ async function run() {
       res.send(products);
     });
 
+    // add product api
     app.post("/category/product", async (req, res) => {
       const categoryProduct = req.body;
       const result = await categoryProductCollection.insertOne(categoryProduct);
       res.send(result);
     });
 
+    //booked post api
     app.post("/category/product/booked", async (req, res) => {
       const productBooked = req.body;
       const result = await productBookedCollection.insertOne(productBooked);
       res.send(result);
+    });
+
+    // booked get api
+
+    app.get("/bookedProducts", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const bookings = await productBookedCollection.find(query).toArray();
+      res.send(bookings);
     });
   } finally {
   }
