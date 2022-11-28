@@ -119,6 +119,27 @@ async function run() {
 
       res.status(403).send({ accessToken: "" });
     });
+
+    // users
+    app.get("/users/seller", async (req, res) => {
+      const query = { position: "Seller" };
+      const users = await usersCollection.find(query).toArray();
+      res.send(users);
+    });
+
+    app.get("/users/buyer", async (req, res) => {
+      const query = { position: "Buyer" };
+      const users = await usersCollection.find(query).toArray();
+      res.send(users);
+    });
+
+    // myproducts
+    app.get("/myProducts", verifyJWT, async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await categoryProductCollection.find(query).toArray();
+      res.send(result);
+    });
   } finally {
   }
 }
