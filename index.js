@@ -138,6 +138,12 @@ async function run() {
       const users = await usersCollection.find(query).toArray();
       res.send(users);
     });
+    // users
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const users = await usersCollection.find(query).toArray();
+      res.send(users);
+    });
 
     // buyer
     app.get("/users/buyer", async (req, res) => {
@@ -179,7 +185,7 @@ async function run() {
     });
 
     // delete user
-    app.delete("/user/:id", verifyJWT, verifyAdmin, async (req, res) => {
+    app.delete("/users/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const result = await usersCollection.deleteOne(filter);
