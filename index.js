@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -46,6 +46,18 @@ async function run() {
       .db("guitarStore")
       .collection("productBooked");
     const usersCollection = client.db("guitarStore").collection("users");
+
+    // verify admin
+    const verifyAdmin = async (req, res, next) => {
+      const decodedEmail = req.decoded.email;
+      const query = { email: decodedEmail };
+      const user = await usersCollection.findOne(query);
+
+      if (user?.position !== "Admin") {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      next();
+    };
 
     // category api
     app.get("/category", async (req, res) => {
@@ -120,13 +132,14 @@ async function run() {
       res.status(403).send({ accessToken: "" });
     });
 
-    // users
+    // seller
     app.get("/users/seller", async (req, res) => {
       const query = { position: "Seller" };
       const users = await usersCollection.find(query).toArray();
       res.send(users);
     });
 
+    // buyer
     app.get("/users/buyer", async (req, res) => {
       const query = { position: "Buyer" };
       const users = await usersCollection.find(query).toArray();
@@ -139,6 +152,56 @@ async function run() {
       const query = { email: email };
       const result = await categoryProductCollection.find(query).toArray();
       res.send(result);
+    });
+
+    // is admin
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isAdmin: user?.position === "Admin" });
+    });
+
+    // is seller
+    app.get("/users/seller/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isSeller: user?.position === "Seller" });
+    });
+
+    // is buyer
+    app.get("/users/buyer/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isBuyer: user?.position === "Buyer" });
+    });
+
+    // delete user
+    app.delete("/user/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await usersCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+    // verified status
+    app.put("/users/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updateedDoc = {
+        $set: {
+          status: "Verified",
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updateedDoc,
+        option
+      );
+      res.sendStatus(result);
     });
   } finally {
   }
