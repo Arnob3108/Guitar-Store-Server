@@ -191,24 +191,41 @@ async function run() {
       const result = await usersCollection.deleteOne(filter);
       res.send(result);
     });
-
-    // verified status
-    app.put("/users/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
+    // delete product
+    app.delete("/product/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
-      const option = { upsert: true };
-      const updateedDoc = {
-        $set: {
-          status: "Verified",
-        },
-      };
-      const result = await usersCollection.updateOne(
-        filter,
-        updateedDoc,
-        option
-      );
-      res.sendStatus(result);
+      const result = await categoryProductCollection.deleteOne(filter);
+      res.send(result);
     });
+
+    // verified status
+    app.put(
+      "/users/verify/:email",
+      verifyJWT,
+      verifyAdmin,
+      async (req, res) => {
+        const email = req.params.email;
+        const filter = { email: email };
+        const option = { upsert: true };
+        const updateedDoc = {
+          $set: {
+            verified: true,
+          },
+        };
+        const result = await usersCollection.updateOne(
+          filter,
+          updateedDoc,
+          option
+        );
+        // const result2 = await categoryProductCollection.updateOne(
+        //   filter,
+        //   updateedDoc,
+        //   option
+        // );
+        res.send(result);
+      }
+    );
   } finally {
   }
 }
