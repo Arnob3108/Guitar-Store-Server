@@ -117,6 +117,23 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      console.log(result);
+      res.send(result);
+    });
+
     // jwt
     app.get("/jwt", async (req, res) => {
       const email = req.query.email;
